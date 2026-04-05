@@ -1,41 +1,78 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Camera, Mountain, Map, Compass } from 'lucide-react';
+import { heroSlides } from '../data/destinations';
 
 export default function Hero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <div className="relative bg-background overflow-hidden border-b border-border">
-      <div className="max-w-7xl mx-auto">
-        <div className="relative z-10 pb-8 bg-background sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20">
-          <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-            <div className="sm:text-center lg:text-left">
-              <h1 className="text-4xl tracking-tight font-extrabold text-foreground sm:text-5xl md:text-6xl group">
-                <span className="block xl:inline">Discover the Land of</span>{' '}
-                <span className="block text-primary">Origins</span>
-              </h1>
-              <p className="mt-3 text-base text-muted-foreground sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                Explore Ethiopia’s breathtaking landscapes, ancient history, and vibrant culture. A true adventure awaits.
-              </p>
-              <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                <div className="rounded-md shadow">
-                  <Link
-                    to="/explore"
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 md:py-4 md:text-lg transition-colors"
-                  >
-                    Start Exploring
-                  </Link>
-                </div>
+    <div className="relative bg-[#0f1a2c] h-screen min-h-[700px] overflow-hidden flex flex-col justify-end pb-12 sm:pb-24">
+      
+      {/* Slideshow Background */}
+      {heroSlides.map((slide, index) => (
+        <div 
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-2000 ease-in-out ${index === currentSlide ? 'opacity-70 z-0' : 'opacity-0 z-0'}`}
+        >
+          <img
+            src={slide}
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient Overlay to bridge image & content */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f1a2c] via-[#0f1a2c]/40 to-transparent"></div>
+        </div>
+      ))}
+
+      {/* Hero Content Layer */}
+      <div className="relative z-10 w-full max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 mt-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+          
+          {/* Left Column */}
+          <div className="flex-1 max-w-xl">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-8">
+              Uncover the World's<br /> Natural Wonders.
+            </h2>
+            
+            <Link
+              to="/explore"
+              className="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-lg font-medium rounded-full text-[#0f1a2c] bg-white hover:bg-gray-100 hover:scale-105 transition-all shadow-lg"
+            >
+              Start Exploring
+            </Link>
+
+            <div className="flex items-center gap-6 mt-12 sm:mt-16">
+              <div className="flex -space-x-4">
+                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white"><Camera size={18} /></div>
+                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white"><Mountain size={18} /></div>
+                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white"><Map size={18} /></div>
+                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white"><Compass size={18} /></div>
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">300+ Iconic</p>
+                <p className="text-white/70 text-sm">Spots Included</p>
               </div>
             </div>
-          </main>
+          </div>
+
+          {/* Right Column - Text */}
+          <div className="w-full lg:w-[400px] flex flex-col gap-6">
+            <p className="text-white/80 text-base leading-relaxed hidden lg:block">
+              Discover nature's finest places, breathtaking landscapes, untouched beauty, and nature at its purest. 
+              Journey to the Land of Origins and unearth endless scenic beauty.
+            </p>
+          </div>
         </div>
       </div>
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 mt-10 lg:mt-0">
-        <img
-          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full opacity-80 mix-blend-lighten"
-          src="https://images.unsplash.com/photo-1549888834-3ec93abae044?auto=format&fit=crop&q=80"
-          alt="Ethiopian Landscape"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent lg:via-background/20" />
-      </div>
+
     </div>
   );
 }

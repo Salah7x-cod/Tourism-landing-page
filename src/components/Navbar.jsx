@@ -8,36 +8,36 @@ export default function Navbar() {
 
   const links = [
     { name: 'Home', path: '/' },
-    { name: 'Explore', path: '/explore' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'About', path: '/about' }
+    { name: 'Destination', path: '/explore' },
+    { name: 'About', path: '/about' },
+    { name: 'Blog', path: '/blog' }
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+    <nav className="absolute top-0 w-full z-50 bg-transparent border-b border-white/10">
+      <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20 items-center">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <Compass className="h-8 w-8 text-primary group-hover:rotate-45 transition-transform duration-300" />
-              <span className="font-bold text-xl tracking-tight text-foreground uppercase">
-                Ethio<span className="text-primary">Explore</span>
+            <Link to="/" className="flex items-center gap-2 group text-white">
+              <Compass className="h-8 w-8 text-white group-hover:rotate-45 transition-transform duration-300" />
+              <span className="font-bold text-xl tracking-tight uppercase">
+                Ethio<span className="text-white/80">Explore</span>
               </span>
             </Link>
           </div>
           
           {/* Desktop Menu */}
-          <div className="hidden md:ml-6 md:flex md:space-x-8">
+          <div className="hidden lg:flex lg:items-center lg:space-x-8">
             {links.map((link) => (
-              <Link
+               <Link
                 key={link.name}
                 to={link.path}
-                className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
+                className={`text-sm font-medium transition-colors ${
                   isActive(link.path)
-                    ? 'border-primary text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                    ? 'text-white'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 {link.name}
@@ -45,10 +45,10 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-white/70 hover:text-white focus:outline-none"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -58,17 +58,17 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-b border-border bg-card">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="lg:hidden bg-[#0f1a2c]/95 backdrop-blur-md border-b border-white/10">
+          <div className="px-4 pt-2 pb-6 space-y-1">
             {links.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`block px-3 py-3 rounded-md text-base font-medium ${
                   isActive(link.path)
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {link.name}
