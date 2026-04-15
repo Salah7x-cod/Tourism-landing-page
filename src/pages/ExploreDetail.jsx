@@ -1,15 +1,31 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { destinations } from '../data/destinations';
 import { ArrowLeft, MapPin, Compass, Image } from 'lucide-react';
+import { api } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import { destinations as fallbackDestinations } from '../data/destinations';
 
 export default function ExploreDetail() {
   const { id } = useParams();
   const locationId = parseInt(id, 10);
-  const destination = destinations.find(d => d.id === locationId);
+  const [destination, setDestination] = useState(null);
+  const [feedback, setFeedback] = useState('');
+  const [tripDate, setTripDate] = useState('');
+  const [travelers, setTravelers] = useState(1);
+  const { token, isAuthenticated } = useAuth();
 
   const [currentVisual, setCurrentVisual] = useState(0);
-  const visuals = destination ? [destination.image, destination.heroImage] : [];
+  const visuals = destination ? [destination.image, destination.hero_image || destination.heroImage || destination.image] : [];
+
+  useEffect(() => {
+    api
+      .destination(locationId)
+      .then(setDestination)
+      .catch(() => {
+        const fallback = fallbackDestinations.find((item) => item.id === locationId) || null;
+        setDestination(fallback);
+      });
+  }, [locationId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -22,10 +38,42 @@ export default function ExploreDetail() {
     return (
       <div className="py-20 text-center text-foreground flex-grow">
         <h2 className="text-2xl mb-4 font-serif">Destination Not Found</h2>
-        <Link to="/explore" className="text-primary hover:underline">Return to Explore</Link>
+        <Link to="/explore" className="text-[#c8e6d5] font-medium hover:text-white hover:underline">Return to Explore</Link>
       </div>
     );
   }
+
+  const submitBooking = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      setFeedback('Please login to book this destination.');
+      return;
+    }
+    try {
+      await api.createBooking(
+        { destination_id: locationId, trip_date: tripDate, travelers: Number(travelers) },
+        token,
+      );
+      setFeedback('Booking saved successfully.');
+      setTripDate('');
+      setTravelers(1);
+    } catch (err) {
+      setFeedback(err.message);
+    }
+  };
+
+  const saveFavorite = async () => {
+    if (!isAuthenticated) {
+      setFeedback('Please login to save favorites.');
+      return;
+    }
+    try {
+      await api.addFavorite(locationId, token);
+      setFeedback('Destination added to favorites.');
+    } catch (err) {
+      setFeedback(err.message);
+    }
+  };
 
   return (
     <div className="flex flex-col flex-grow bg-background">
@@ -33,7 +81,7 @@ export default function ExploreDetail() {
       {/* Animated Header Section */}
       <div className="relative w-full h-[50vh] min-h-[400px] overflow-hidden group">
         <img 
-          src={destination.heroImage || destination.image}
+          src={destination.hero_image || destination.heroImage || destination.image}
           alt={destination.name}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -42,7 +90,7 @@ export default function ExploreDetail() {
         <div className="absolute top-6 left-6 z-20">
           <Link 
             to="/explore" 
-            className="flex items-center gap-2 px-4 py-2 bg-background/80 hover:bg-primary hover:text-background text-foreground backdrop-blur-md rounded-full shadow-lg border border-border transition-all font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-white/95 text-[#013220] hover:bg-[#013220] hover:text-white backdrop-blur-md rounded-full shadow-lg border-2 border-[#013220]/40 transition-all font-semibold"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Explore
           </Link>
@@ -50,7 +98,7 @@ export default function ExploreDetail() {
 
         <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 z-20">
           <div className="max-w-7xl mx-auto">
-            <span className="inline-block px-3 py-1 mb-4 border border-primary text-primary text-xs font-bold uppercase tracking-widest rounded-full bg-background/50 backdrop-blur-md">
+            <span className="inline-block px-3 py-1 mb-4 border-2 border-white/80 text-white text-xs font-bold uppercase tracking-widest rounded-full bg-[#013220]/85 backdrop-blur-md">
               {destination.category}
             </span>
             <h1 className="text-5xl md:text-7xl font-serif text-white font-bold drop-shadow-lg leading-tight">
@@ -84,27 +132,53 @@ export default function ExploreDetail() {
             <h3 className="text-xl font-bold text-foreground mb-4 font-serif">Quick Facts</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="text-primary w-5 h-5 mt-0.5" />
+                <MapPin className="text-[#c8e6d5] w-5 h-5 mt-0.5" />
                 <div>
                   <span className="block font-semibold text-foreground">Location</span>
-                  <span className="text-sm text-muted-foreground">Ethiopian Highlands</span>
+                  <span className="text-sm text-muted-foreground">{destination.location || 'Ethiopian Highlands'}</span>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Compass className="text-primary w-5 h-5 mt-0.5" />
+                <Compass className="text-[#c8e6d5] w-5 h-5 mt-0.5" />
                 <div>
                   <span className="block font-semibold text-foreground">Best Time</span>
-                  <span className="text-sm text-muted-foreground">October tracking to February</span>
+                  <span className="text-sm text-muted-foreground">{destination.best_time || 'October to February'}</span>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Image className="text-primary w-5 h-5 mt-0.5" />
+                <Image className="text-[#c8e6d5] w-5 h-5 mt-0.5" />
                 <div>
                   <span className="block font-semibold text-foreground">Highlights</span>
-                  <span className="text-sm text-muted-foreground">Stunning vistas, rich heritage</span>
+                  <span className="text-sm text-muted-foreground">{destination.highlights || 'Stunning vistas, rich heritage'}</span>
                 </div>
               </li>
             </ul>
+          </div>
+
+          <div className="p-6 bg-card border border-border rounded-xl shadow-lg">
+            <h3 className="text-xl font-bold text-foreground mb-4 font-serif">Book This Trip</h3>
+            <form onSubmit={submitBooking} className="space-y-3">
+              <input
+                type="date"
+                value={tripDate}
+                onChange={(e) => setTripDate(e.target.value)}
+                className="w-full rounded border border-border bg-background p-2 text-foreground"
+                required
+              />
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={travelers}
+                onChange={(e) => setTravelers(e.target.value)}
+                className="w-full rounded border border-border bg-background p-2 text-foreground"
+              />
+              <button className="w-full py-2 rounded bg-[#013220] text-white font-semibold">Confirm Booking</button>
+            </form>
+            <button onClick={saveFavorite} className="w-full mt-3 py-2 rounded border border-white/30 text-white">
+              Save to Favorites
+            </button>
+            {feedback && <p className="text-sm text-white/80 mt-2">{feedback}</p>}
           </div>
           
           <div className="rounded-xl overflow-hidden shadow-lg border border-border relative h-48">

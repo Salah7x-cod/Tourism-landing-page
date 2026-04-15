@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import DestinationCard from '../components/DestinationCard';
-import { destinations, categories } from '../data/destinations';
+import TravelPlansSection from '../components/TravelPlansSection';
+import { categories } from '../data/destinations';
 import { Search } from 'lucide-react';
+import { useDestinations } from '../hooks/useDestinations';
 
 export default function Explore() {
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const { destinations, loading, error } = useDestinations();
 
   const filteredDestinations = destinations.filter(dest => {
     const matchesCategory = filter === "All" || dest.category === filter;
@@ -18,12 +21,15 @@ export default function Explore() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Explore Destinations</h1>
-          <p className="text-muted-foreground text-lg">Find your next great adventure in Ethiopia</p>
+          <h1 className="font-serif text-4xl font-bold mb-4">
+            <span className="text-white">Explore </span>
+            <span className="text-[#e8f5e9]">Destinations</span>
+          </h1>
+          <p className="text-white/75 text-lg">Find your next great adventure in Ethiopia</p>
         </div>
 
         {/* Controls Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 bg-card p-4 rounded-lg border border-border shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 bg-card p-4 rounded-lg border border-[#013220]/25 shadow-sm ring-1 ring-white/5">
           
           {/* Category Filters */}
           <div className="flex flex-wrap gap-2 justify-center md:justify-start">
@@ -71,14 +77,18 @@ export default function Explore() {
             <p className="text-muted-foreground mt-2">Try adjusting your filters or search query.</p>
             <button 
               onClick={() => {setFilter("All"); setSearchQuery("");}}
-              className="mt-4 text-primary hover:underline"
+              className="mt-4 text-[#c8e6d5] font-medium hover:text-white hover:underline"
             >
               Clear filters
             </button>
           </div>
         )}
+        {loading && <p className="text-center text-white/70 mt-6">Loading destinations...</p>}
+        {error && <p className="text-center text-yellow-200 mt-2">Using fallback data: {error}</p>}
 
       </div>
+
+      <TravelPlansSection />
     </div>
   );
 }

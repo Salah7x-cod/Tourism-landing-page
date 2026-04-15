@@ -1,10 +1,12 @@
 import Hero from '../components/Hero';
-import { destinations } from '../data/destinations';
+import TravelPlansSection from '../components/TravelPlansSection';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import { useDestinations } from '../hooks/useDestinations';
 
 export default function Home() {
-  const featuredDestinations = destinations.slice(0, 3);
+  const { destinations } = useDestinations();
+  const featuredDestinations = destinations.slice(0, 3); // Get the first 3 destinations for the featured section
 
   return (
     <div>
@@ -14,16 +16,16 @@ export default function Home() {
           
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
             <div className="max-w-2xl">
-              <span className="text-gray-500 font-medium text-sm mb-4 inline-block">Our Destination</span>
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0f172a] leading-tight">
+              <span className="text-[#013220]/70 font-medium text-sm mb-4 inline-block">Our Destination</span>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#013220] leading-tight">
                 Your Journey to the Perfect Destination Begins Here
               </h2>
             </div>
             
             <div className="mt-8 md:mt-0">
-               <Link to="/explore" className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-gray-200 text-[#0f172a] font-semibold hover:border-gray-900 transition-colors">
+               <Link to="/explore" className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-[#013220] bg-white text-[#013220] font-semibold hover:bg-[#013220] hover:text-white transition-colors shadow-sm">
                  See All Destination
-                 <span className="flex items-center justify-center p-1 rounded-full bg-[#0f172a] text-white">
+                 <span className="flex items-center justify-center p-1 rounded-full bg-[#013220] text-white group-hover:bg-white group-hover:text-[#013220]">
                    <ArrowUpRight className="w-4 h-4" />
                  </span>
                </Link>
@@ -40,7 +42,7 @@ export default function Home() {
                 />
                 
                 {/* Top Right Icon */}
-                <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-[#0f172a] shadow-lg opacity-90 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 w-10 h-10 bg-white/95 backdrop-blur rounded-full flex items-center justify-center text-[#013220] border border-[#013220]/20 shadow-lg opacity-90 group-hover:opacity-100 transition-opacity">
                   <ArrowUpRight className="w-5 h-5" />
                 </div>
 
@@ -59,10 +61,10 @@ export default function Home() {
           </div>
 
           <div className="flex justify-center mt-12 gap-4">
-             <button aria-label="Previous" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+             <button aria-label="Previous" className="w-10 h-10 rounded-full border-2 border-[#013220]/30 bg-white flex items-center justify-center text-[#013220] hover:bg-[#013220] hover:text-white hover:border-[#013220] transition-colors">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
              </button>
-             <button aria-label="Next" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+             <button aria-label="Next" className="w-10 h-10 rounded-full border-2 border-[#013220]/30 bg-white flex items-center justify-center text-[#013220] hover:bg-[#013220] hover:text-white hover:border-[#013220] transition-colors">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
              </button>
           </div>
@@ -70,7 +72,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Remove or keep the second section 'What Travelers Say' from original as it wasn't specified. Keeping for completeness but removing since not requested or needed for exact visual match. */}
+      <TravelPlansSection />
     </div>
   );
 }
