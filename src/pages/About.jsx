@@ -62,7 +62,7 @@ export default function About() {
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto font-light">
                Our team comprises local guides, digital nomads, and history enthusiasts committed to shining a light on this corner of the globe.
             </p>
-            <button className="px-8 py-4 bg-primary text-background font-bold rounded-full hover:scale-105 hover:bg-primary/90 transition-all shadow-xl">
+            <button className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-full hover:scale-105 hover:bg-primary/90 transition-all shadow-xl border-2 border-white/90">
                Contact The Team
             </button>
          </div>
