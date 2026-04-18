@@ -1,0 +1,88 @@
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
+
+export default function Dashboard() {
+  const { isAuthenticated, token, user } = useAuth();
+  const [data, setData] = useState({ bookings: [], favorites: [] });
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!token) return;
+
+    const pending = localStorage.getItem('pendingBooking');
+    if (pending) {
+      try {
+        const payload = JSON.parse(pending);
+        api.createBooking(payload, token).then(() => {
+          localStorage.removeItem('pendingBooking');
+          api.dashboard(token).then(setData).catch((err) => setError(err.message));
+        });
+      } catch (e) {
+        localStorage.removeItem('pendingBooking');
+      }
+    } else {
+      api.dashboard(token).then(setData).catch((err) => setError(err.message));
+    }
+  }, [token]);
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  return (
+    <div className="py-12 bg-background min-h-[calc(100vh-64px)]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-4xl font-serif text-white mb-8">Your Dashboard</h1>
+        {error && <p className="text-red-300 mb-6">{error}</p>}
+
+        {user && (
+          <div className="bg-card border border-border rounded-xl p-6 mb-8 flex items-center gap-6 shadow-md transition-all hover:border-primary/50">
+            <div className="h-16 w-16 bg-[#013220] rounded-full flex shrink-0 items-center justify-center text-white text-2xl font-bold uppercase ring-4 ring-[#c8e6d5]/20">
+              {user.full_name ? user.full_name[0] : user.name ? user.name[0] : user.email ? user.email[0] : 'U'}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold font-serif text-foreground capitalize">{user.full_name || user.name || "Explorer"}</h2>
+              <p className="text-muted-foreground mt-0.5">{user.email}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <section className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-2xl font-serif text-foreground mb-4">Booked Trips</h2>
+            {data.bookings?.length ? (
+              <ul className="space-y-3">
+                {data.bookings.map((booking) => (
+                  <li key={booking.id} className="p-3 rounded border border-border">
+                    <p className="font-semibold text-foreground">{booking.destination.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Date: {booking.trip_date} | Travelers: {booking.travelers}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">No bookings yet.</p>
+            )}
+          </section>
+
+          <section className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-2xl font-serif text-foreground mb-4">Saved Favorites</h2>
+            {data.favorites?.length ? (
+              <ul className="space-y-3">
+                {data.favorites.map((favorite) => (
+                  <li key={favorite.id} className="p-3 rounded border border-border">
+                    <p className="font-semibold text-foreground">{favorite.destination.name}</p>
+                    <p className="text-sm text-muted-foreground">{favorite.destination.category}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">No favorites saved yet.</p>
+            )}
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
