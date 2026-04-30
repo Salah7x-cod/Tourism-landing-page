@@ -35,7 +35,7 @@ export default function TravelPlansSection() {
       <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight mb-4">
-            <span className="text-white">Choose Your </span>
+            <span className="text-white">Choose Your  </span>
             <span className="text-[#e8f5e9]">Travel Plan</span>
           </h2>
           <p className="text-white/80 text-base sm:text-lg leading-relaxed">
