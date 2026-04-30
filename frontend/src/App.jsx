@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import AdminDestinations from './pages/AdminDestinations';
+import AdminBlogs from './pages/AdminBlogs';
 
 function AppContent() {
   const location = useLocation(); // Get current location to determine if we are on an auth page
@@ -30,6 +31,7 @@ function AppContent() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/destinations" element={<AdminDestinations />} />
+          <Route path="/admin/blogs" element={<AdminBlogs />} />
         </Routes>
       </main>
       {!isAuthPage && <Footer />}

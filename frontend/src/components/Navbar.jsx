@@ -2,24 +2,28 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Compass } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
+import CurrencySelector from './CurrencySelector';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated, logout, user } = useAuth();
+  const { t } = useLanguage();
 
   const links = [
-    { name: 'Home', path: '/' },
-    { name: 'Destination', path: '/explore' },
-    { name: 'About', path: '/about' },
-    { name: 'Blog', path: '/blog' }
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.destination'), path: '/explore' },
+    { name: t('nav.about'), path: '/about' },
+    { name: t('nav.blog'), path: '/blog' }
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3">
-      <div className="max-w-3xl mx-auto rounded-xl border border-white/20 bg-[#0f1a2c]/35 backdrop-blur-md shadow-lg shadow-black/10 transition-[background-color,backdrop-filter,border-color] duration-300 ease-out supports-[backdrop-filter]:bg-[#0f1a2c]/25 overflow-hidden ring-1 ring-[#013220]/25">
+      <div className="max-w-4xl mx-auto rounded-xl border border-white/20 bg-[#0f1a2c]/35 backdrop-blur-md shadow-lg shadow-black/10 transition-[background-color,backdrop-filter,border-color] duration-300 ease-out supports-[backdrop-filter]:bg-[#0f1a2c]/25 overflow-hidden ring-1 ring-[#013220]/25">
         <div className="flex justify-between h-14 sm:h-[3.75rem] items-center px-3 sm:px-4">
           <div className="flex-shrink-0 flex items-center min-w-0">
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group text-white">
@@ -30,11 +34,11 @@ export default function Navbar() {
             </Link>
           </div>
           
-          <div className="hidden lg:flex lg:items-center lg:gap-5">
-            <div className="flex items-center space-x-5">
+          <div className="hidden lg:flex lg:items-center lg:gap-4">
+            <div className="flex items-center space-x-4">
               {links.map((link) => (
                 <Link
-                  key={link.name}
+                  key={link.path}
                   to={link.path}
                   className={`relative text-xs font-bold transition-all px-2 py-1 ${
                     isActive(link.path)
@@ -49,19 +53,31 @@ export default function Navbar() {
                 </Link>
               ))}
             </div>
+
+            {/* Language + Currency selectors */}
+            <div className="flex items-center gap-2 pl-2 border-l border-white/20">
+              <LanguageSwitcher />
+              <CurrencySelector />
+            </div>
+
             <div className="flex items-center gap-2 pl-2 border-l border-white/20">
               {isAuthenticated ? (
                 <>
                   <Link to="/dashboard" className="text-xs font-semibold px-3 py-1.5 rounded-full border-2 border-white text-white hover:bg-white hover:text-[#013220] transition-colors">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                   {user?.is_admin && (
-                    <Link to="/admin/destinations" className="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#013220] text-white border-2 border-[#013220]">
-                      Admin
-                    </Link>
+                    <>
+                      <Link to="/admin/destinations" className="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#013220] text-white border-2 border-[#013220]">
+                        {t('nav.admin')}
+                      </Link>
+                      <Link to="/admin/blogs" className="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-700 text-white border-2 border-emerald-700 hover:bg-emerald-800 transition-colors">
+                        Blogs
+                      </Link>
+                    </>
                   )}
                   <button onClick={logout} className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white text-[#013220] border-2 border-white">
-                    Logout
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
@@ -72,7 +88,7 @@ export default function Navbar() {
                       isActive('/login') ? 'bg-white text-[#013220] border-white' : ''
                     }`}
                   >
-                    Login
+                    {t('nav.login')}
                   </Link>
                   <Link
                     to="/signup"
@@ -80,7 +96,7 @@ export default function Navbar() {
                       isActive('/signup') ? 'ring-2 ring-white ring-offset-2 ring-offset-transparent' : ''
                     }`}
                   >
-                    Sign up
+                    {t('nav.signup')}
                   </Link>
                 </>
               )}
@@ -102,7 +118,7 @@ export default function Navbar() {
             <div className="px-4 pt-2 pb-6 space-y-1">
               {links.map((link) => (
                 <Link
-                  key={link.name}
+                  key={link.path}
                   to={link.path}
                   onClick={() => setIsOpen(false)}
                   className={`block px-3 py-3 rounded-md text-base font-medium ${
@@ -114,14 +130,26 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+
+              {/* Mobile language + currency */}
+              <div className="flex items-center gap-3 px-3 py-3">
+                <LanguageSwitcher />
+                <CurrencySelector />
+              </div>
+
               <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-white/10">
                 {isAuthenticated ? (
                   <>
                     <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block text-center px-3 py-3 rounded-full border-2 border-white text-white font-semibold">
-                      Dashboard
+                      {t('nav.dashboard')}
                     </Link>
+                    {user?.is_admin && (
+                      <Link to="/admin/blogs" onClick={() => setIsOpen(false)} className="block text-center px-3 py-3 rounded-full bg-emerald-700 text-white border-2 border-emerald-700 font-semibold">
+                        Blog Review
+                      </Link>
+                    )}
                     <button onClick={() => { logout(); setIsOpen(false); }} className="block text-center px-3 py-3 rounded-full bg-white text-[#013220] border-2 border-white font-semibold">
-                      Logout
+                      {t('nav.logout')}
                     </button>
                   </>
                 ) : (
@@ -131,14 +159,14 @@ export default function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className="block text-center px-3 py-3 rounded-full border-2 border-white text-white font-semibold hover:bg-white hover:text-[#013220]"
                     >
-                      Login
+                      {t('nav.login')}
                     </Link>
                     <Link
                       to="/signup"
                       onClick={() => setIsOpen(false)}
                       className="block text-center px-3 py-3 rounded-full bg-[#013220] text-white border-2 border-[#013220] font-semibold hover:bg-white hover:text-[#013220]"
                     >
-                      Sign up
+                      {t('nav.signup')}
                     </Link>
                   </>
                 )}

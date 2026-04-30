@@ -4,10 +4,14 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useDestinations } from '../hooks/useDestinations';
 import { useState } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Home() {
   const { destinations } = useDestinations();
   const [startIndex, setStartIndex] = useState(0);
+  const { convert } = useCurrency();
+  const { t } = useLanguage();
 
   const total = destinations.length;
   const featuredDestinations = total > 0 
@@ -25,15 +29,15 @@ export default function Home() {
           
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
             <div className="max-w-2xl">
-              <span className="text-[#013220]/70 font-medium text-sm mb-4 inline-block">Our Destination</span>
+              <span className="text-[#013220]/70 font-medium text-sm mb-4 inline-block">{t('home.ourDestination')}</span>
               <h2 className="font-serif text-4xl md:text-5xl font-bold text-[#013220] leading-tight">
-                Your Journey to the Perfect Destination Begins Here
+                {t('home.journeyTitle')}
               </h2>
             </div>
             
             <div className="mt-8 md:mt-0">
                <Link to="/explore" className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-[#013220] bg-white text-[#013220] font-semibold hover:bg-[#013220] hover:text-white transition-colors shadow-sm">
-                 See All Destination
+                 {t('home.seeAll')}
                  <span className="flex items-center justify-center p-1 rounded-full bg-[#013220] text-white group-hover:bg-white group-hover:text-[#013220]">
                    <ArrowUpRight className="w-4 h-4" />
                  </span>
@@ -62,7 +66,7 @@ export default function Home() {
                     {dest.name}
                   </h3>
                   <p className="text-white/80 font-medium text-sm shadow-sm">
-                    {dest.price || "$55"} <span className="font-normal text-white/60">/ per person</span>
+                    {convert(dest.price || "55")} <span className="font-normal text-white/60">{t('home.perPerson')}</span>
                   </p>
                 </div>
               </Link>

@@ -91,3 +91,54 @@ class DashboardOut(BaseModel):
     user: UserOut
     bookings: list[BookingOut]
     favorites: list[FavoriteOut]
+
+
+# ── Blog ──────────────────────────────────────────────────────────────
+
+class BlogPostCreate(BaseModel):
+    title: str = Field(min_length=3, max_length=255)
+    content: str = Field(min_length=10)
+    cover_image: str | None = None
+    destination_id: int | None = None
+
+
+class BlogPostAdminUpdate(BaseModel):
+    status: str = Field(pattern="^(approved|rejected)$")
+
+
+class BlogPostOut(BaseModel):
+    id: int
+    title: str
+    content: str
+    cover_image: str | None
+    status: str
+    destination_id: int | None
+    published_at: datetime | None
+    created_at: datetime
+    user: UserOut
+    destination: DestinationOut | None = None
+
+    class Config:
+        from_attributes = True
+
+
+# ── Comment ───────────────────────────────────────────────────────────
+
+class CommentCreate(BaseModel):
+    content: str = Field(min_length=1, max_length=2000)
+
+
+class CommentUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=2000)
+
+
+class CommentOut(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+    updated_at: datetime
+    user: UserOut
+    destination_id: int
+
+    class Config:
+        from_attributes = True
