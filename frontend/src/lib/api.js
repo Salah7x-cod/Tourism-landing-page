@@ -1,4 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
 
 function buildHeaders(token, hasBody = false) {
   const headers = {};
@@ -81,11 +82,21 @@ export const api = {
 
   // File upload
   uploadFile: (file, token) => uploadRequest("/upload", file, token),
+  assetUrl: (url) => {
+    if (!url) return url;
+    if (/^https?:\/\//i.test(url)) return url;
+    return `${API_ORIGIN}${url.startsWith("/") ? url : `/${url}`}`;
+  },
 
   // Blog posts
   createBlog: (payload, token) => request("/blogs", { method: "POST", body: payload, token }),
-  listBlogs: (destinationId) =>
-    request(`/blogs${destinationId ? `?destination_id=${destinationId}` : ""}`),
+  listBlogs: ({ destinationId, sort = "date" } = {}) => {
+    const params = new URLSearchParams();
+    if (destinationId) params.set("destination_id", destinationId);
+    if (sort) params.set("sort", sort);
+    const query = params.toString();
+    return request(`/blogs${query ? `?${query}` : ""}`);
+  },
   getBlog: (id) => request(`/blogs/${id}`),
   listPendingBlogs: (token) => request("/blogs/pending", { token }),
   updateBlogStatus: (id, status, token) =>

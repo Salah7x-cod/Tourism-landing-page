@@ -1,4 +1,4 @@
-import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+﻿import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, Compass, Image, CloudSun, Thermometer, Droplets, MessageSquare, Edit3, Trash2, AlertCircle } from 'lucide-react';
 import { api } from '../lib/api';
@@ -7,12 +7,11 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { destinations as fallbackDestinations } from '../data/destinations';
 
-// ── Season helper ───────────────────────────────────────────────────
 function getSeason() {
-  const month = new Date().getMonth() + 1; // 1-12
-  if (month >= 10 || month <= 2) return { label: "☀️ Dry Season (Bega)", desc: "Cool & sunny — ideal for trekking" };
-  if (month >= 3 && month <= 5) return { label: "🌤️ Short Rains (Belg)", desc: "Light showers, green landscapes" };
-  return { label: "🌧️ Rainy Season (Kiremt)", desc: "Heavy rains, lush highlands" };
+  const month = new Date().getMonth() + 1;
+  if (month >= 10 || month <= 2) return { icon: "☀️", label: "Dry Season (Bega)", desc: "Cool and sunny, ideal for trekking" };
+  if (month >= 3 && month <= 5) return { icon: "🌤️", label: "Short Rains (Belg)", desc: "Light showers and green landscapes" };
+  return { icon: "🌧️", label: "Rainy Season (Kiremt)", desc: "Heavy rains and lush highlands" };
 }
 
 export default function ExploreDetail() {
@@ -30,15 +29,12 @@ export default function ExploreDetail() {
 
   const [currentVisual, setCurrentVisual] = useState(0);
   const visuals = destination ? [destination.image, destination.hero_image || destination.heroImage || destination.image] : [];
-
-  // ── Weather state ──
   const [weather, setWeather] = useState(null);
   const season = getSeason();
-
-  // ── Comments state ──
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [commentFeedback, setCommentFeedback] = useState('');
+  const [commentNeedsBooking, setCommentNeedsBooking] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
 
@@ -129,17 +125,17 @@ export default function ExploreDetail() {
       setFeedback(err.message);
     }
   };
-
-  // ── Comment handlers ──
   const submitComment = async () => {
     if (!commentText.trim()) return;
     setCommentFeedback('');
+    setCommentNeedsBooking(false);
     try {
       const newComment = await api.createComment(locationId, commentText, token);
       setComments(prev => [newComment, ...prev]);
       setCommentText('');
     } catch (err) {
       setCommentFeedback(err.message);
+      setCommentNeedsBooking(err.status === 403);
     }
   };
 
@@ -216,7 +212,7 @@ export default function ExploreDetail() {
             to naturally adjust to its atmosphere and engage actively with local guides who carry its oral history.
           </p>
 
-          {/* ── Visitor Experiences (Comments) ── */}
+          {/* Visitor Experiences (Comments) */}
           <div className="mt-16 pt-12 border-t border-border/50">
             <h3 className="text-2xl font-serif font-bold text-foreground mb-8 flex items-center gap-3">
               <MessageSquare className="w-6 h-6 text-primary" />
@@ -245,7 +241,7 @@ export default function ExploreDetail() {
               <div className="mb-8 p-5 rounded-xl bg-card border border-border text-center">
                 <p className="text-muted-foreground">{t("detail.loginToComment")}</p>
                 <Link to="/login" state={{ from: location.pathname }} className="inline-block mt-2 text-primary font-semibold hover:underline">
-                  Login →
+                  Login
                 </Link>
               </div>
             )}
@@ -254,7 +250,12 @@ export default function ExploreDetail() {
             {commentFeedback && (
               <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm flex items-start gap-2 animate-fade-in">
                 <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>{commentFeedback}</span>
+                <span className="flex-1">{commentFeedback}</span>
+                {commentNeedsBooking && (
+                  <Link to={`/explore/${locationId}#booking`} className="font-semibold text-amber-100 underline underline-offset-4">
+                    {t("detail.bookToComment")}
+                  </Link>
+                )}
               </div>
             )}
 
@@ -364,7 +365,7 @@ export default function ExploreDetail() {
                 <CloudSun className="text-[#c8e6d5] w-5 h-5 mt-0.5" />
                 <div>
                   <span className="block font-semibold text-foreground">{t("detail.season")}</span>
-                  <span className="text-sm text-muted-foreground">{season.label}</span>
+                  <span className="text-sm text-muted-foreground">{season.icon} {season.label}</span>
                   <span className="block text-xs text-muted-foreground/70 mt-0.5">{season.desc}</span>
                 </div>
               </li>
@@ -383,7 +384,7 @@ export default function ExploreDetail() {
                           className="w-8 h-8 -ml-1"
                         />
                       )}
-                      <span className="text-sm text-muted-foreground font-medium">{weather.temp}°C</span>
+                      <span className="text-sm text-muted-foreground font-medium">{weather.temp}&deg;C</span>
                       <span className="text-xs text-muted-foreground capitalize">{weather.description}</span>
                     </div>
                     <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground/70">
@@ -391,7 +392,7 @@ export default function ExploreDetail() {
                       <span>{weather.humidity}% humidity</span>
                     </div>
                     <p className="text-xs text-primary/80 mt-1 italic">
-                      Currently {weather.temp}°C and {weather.description} in {weather.city}
+                      Currently {weather.temp}&deg;C and {weather.description} in {weather.city}
                     </p>
                   </div>
                 </li>
@@ -407,7 +408,7 @@ export default function ExploreDetail() {
             </div>
           )}
 
-          <div className="p-6 bg-card border border-border rounded-xl shadow-lg">
+          <div id="booking" className="p-6 bg-card border border-border rounded-xl shadow-lg">
             <h3 className="text-xl font-bold text-foreground mb-4 font-serif">{t("detail.bookTrip")}</h3>
             <form onSubmit={submitBooking} className="space-y-4">
               <input
@@ -464,3 +465,5 @@ export default function ExploreDetail() {
     </div>
   );
 }
+
+

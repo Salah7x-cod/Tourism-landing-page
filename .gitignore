@@ -2,6 +2,7 @@ node_modules/
 *.log
 *.env
 *.txt
+!backend/requirements.txt
 /public/assets/
 dist/
 __pycache__/

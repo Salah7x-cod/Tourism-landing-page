@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { LogIn, UserPlus } from 'lucide-react';
 
 const plans = [
@@ -81,3 +81,4 @@ export default function TravelPlansSection() {
     </section>
   );
 }
+

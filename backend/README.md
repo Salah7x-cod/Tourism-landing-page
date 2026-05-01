@@ -23,3 +23,12 @@
 - `DELETE /api/favorites/{destination_id}` - remove favorite
 - `GET /api/favorites/me` - list favorites
 - `GET /api/dashboard/me` - dashboard data (bookings + favorites)
+- `POST /api/upload` - authenticated image upload, max 5 MB
+- `POST /api/blogs` - authenticated blog submission, pending by default
+- `GET /api/blogs` - public approved blogs, supports `destination_id` and `sort`
+- `GET /api/blogs/pending` - admin pending blog review list
+- `PATCH /api/blogs/{id}/status` - admin approve/reject blog posts
+- `POST /api/destinations/{id}/comments` - authenticated, booking-verified comment creation
+- `GET /api/destinations/{id}/comments` - public destination comments
+- `PATCH /api/comments/{id}` - edit your own comment
+- `DELETE /api/comments/{id}` - delete your own comment

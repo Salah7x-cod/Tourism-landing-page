@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+﻿import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import en from "../i18n/en.json";
 import am from "../i18n/am.json";
@@ -16,9 +16,7 @@ export const LANGUAGES = [
 ];
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(
-    () => localStorage.getItem(LANG_KEY) || "en"
-  );
+  const [language, setLanguage] = useState(() => localStorage.getItem(LANG_KEY) || "en");
 
   useEffect(() => {
     localStorage.setItem(LANG_KEY, language);
@@ -27,17 +25,11 @@ export function LanguageProvider({ children }) {
 
   const value = useMemo(() => {
     const strings = TRANSLATIONS[language] || en;
-
     const t = (key) => strings[key] ?? en[key] ?? key;
-
     return { language, setLanguage, t, languages: LANGUAGES };
   }, [language]);
 
-  return (
-    <LanguageContext.Provider value={value}>
-      {children}
-    </LanguageContext.Provider>
-  );
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {

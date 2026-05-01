@@ -72,7 +72,7 @@ export default function Navbar() {
                         {t('nav.admin')}
                       </Link>
                       <Link to="/admin/blogs" className="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-700 text-white border-2 border-emerald-700 hover:bg-emerald-800 transition-colors">
-                        Blogs
+                        {t('nav.adminBlogs')}
                       </Link>
                     </>
                   )}
@@ -144,9 +144,14 @@ export default function Navbar() {
                       {t('nav.dashboard')}
                     </Link>
                     {user?.is_admin && (
-                      <Link to="/admin/blogs" onClick={() => setIsOpen(false)} className="block text-center px-3 py-3 rounded-full bg-emerald-700 text-white border-2 border-emerald-700 font-semibold">
-                        Blog Review
-                      </Link>
+                      <>
+                        <Link to="/admin/destinations" onClick={() => setIsOpen(false)} className="block text-center px-3 py-3 rounded-full bg-[#013220] text-white border-2 border-[#013220] font-semibold">
+                          {t('nav.admin')}
+                        </Link>
+                        <Link to="/admin/blogs" onClick={() => setIsOpen(false)} className="block text-center px-3 py-3 rounded-full bg-emerald-700 text-white border-2 border-emerald-700 font-semibold">
+                          {t('nav.adminBlogs')}
+                        </Link>
+                      </>
                     )}
                     <button onClick={() => { logout(); setIsOpen(false); }} className="block text-center px-3 py-3 rounded-full bg-white text-[#013220] border-2 border-white font-semibold">
                       {t('nav.logout')}

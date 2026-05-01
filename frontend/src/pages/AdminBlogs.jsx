@@ -80,7 +80,7 @@ export default function AdminBlogs() {
                 {post.cover_image && (
                   <div className="md:w-64 h-48 md:h-auto flex-shrink-0">
                     <img
-                      src={post.cover_image}
+                      src={api.assetUrl(post.cover_image)}
                       alt={post.title}
                       className="w-full h-full object-cover"
                     />

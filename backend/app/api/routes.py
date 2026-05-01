@@ -1,10 +1,9 @@
 import os
-import shutil
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -263,12 +262,10 @@ def dashboard(
 
 @router.post("/upload")
 async def upload_file(
+    request: Request,
     file: UploadFile = File(...),
     _: User = Depends(get_current_user),
 ):
-    if file.size and file.size > MAX_UPLOAD_SIZE:
-        raise HTTPException(status_code=400, detail="File too large. Maximum size is 5 MB.")
-
     ext = os.path.splitext(file.filename or "file")[1].lower()
     if ext not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
@@ -276,10 +273,20 @@ async def upload_file(
     unique_name = f"{uuid.uuid4().hex}{ext}"
     dest_path = os.path.join(UPLOAD_DIR, unique_name)
 
-    with open(dest_path, "wb") as out:
-        shutil.copyfileobj(file.file, out)
+    size = 0
+    try:
+        with open(dest_path, "wb") as out:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_UPLOAD_SIZE:
+                    out.close()
+                    os.remove(dest_path)
+                    raise HTTPException(status_code=400, detail="File too large. Maximum size is 5 MB.")
+                out.write(chunk)
+    finally:
+        await file.close()
 
-    return {"url": f"/uploads/{unique_name}"}
+    return {"url": str(request.base_url).rstrip("/") + f"/uploads/{unique_name}"}
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -313,6 +320,7 @@ def create_blog(
 @router.get("/blogs", response_model=list[BlogPostOut])
 def list_blogs(
     destination_id: Optional[int] = Query(None),
+    sort: str = Query("date", pattern="^(date|oldest)$"),
     db: Session = Depends(get_db),
 ):
     q = (
@@ -322,7 +330,8 @@ def list_blogs(
     )
     if destination_id:
         q = q.filter(BlogPost.destination_id == destination_id)
-    return q.order_by(BlogPost.published_at.desc()).all()
+    order_column = BlogPost.published_at.asc() if sort == "oldest" else BlogPost.published_at.desc()
+    return q.order_by(order_column).all()
 
 
 @router.get("/blogs/pending", response_model=list[BlogPostOut])
@@ -462,4 +471,3 @@ def delete_comment(
     db.delete(comment)
     db.commit()
     return None
-
