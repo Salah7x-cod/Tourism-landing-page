@@ -41,7 +41,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3">
-      <div className="max-w-4xl mx-auto rounded-xl border border-white/20 bg-[#0f1a2c]/35 backdrop-blur-md shadow-lg shadow-black/10 transition-all duration-300 supports-[backdrop-filter]:bg-[#0f1a2c]/25 overflow-hidden ring-1 ring-[#013220]/25">
+      <div className="max-w-4xl mx-auto rounded-xl border border-white/20 bg-[#0f1a2c]/35 backdrop-blur-md shadow-lg shadow-black/10 transition-all duration-300 supports-[backdrop-filter]:bg-[#0f1a2c]/25 ring-1 ring-[#013220]/25">
         <div className="flex justify-between h-14 sm:h-[3.75rem] items-center px-3 sm:px-4">
 
           {/* Logo */}
