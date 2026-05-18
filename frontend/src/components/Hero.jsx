@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Camera, Mountain, Map, Compass } from 'lucide-react';
 import GlassPlaceStrip from './GlassPlaceStrip';
+import { useLanguage } from '../context/LanguageContext';
 
-/** User hero asset (public folder); filename includes a trailing space before .png */
 const heroImage = '/assets/Tourism%20hero%20page%20.png';
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <div className="relative bg-[#0f1a2c] h-screen min-h-[700px] overflow-hidden flex flex-col justify-end pb-6 sm:pb-8">
       <div className="absolute inset-0 z-0">
@@ -20,8 +22,8 @@ export default function Hero() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 lg:gap-12">
           <div className="flex-1 max-w-xl">
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-8 drop-shadow-[0_2px_24px_rgba(0,0,0,0.55)]">
-              Explore{' '}
-              <span className="text-[#e8f5e9]">Ethiopia</span>
+              {t('hero.title').split(' ').slice(0, -1).join(' ')}{' '}
+              <span className="text-[#e8f5e9]">{t('hero.title').split(' ').at(-1)}</span>
               <span className="text-white">.</span>
             </h1>
 
@@ -29,7 +31,7 @@ export default function Hero() {
               to="/explore"
               className="inline-flex items-center justify-center px-8 py-3.5 text-lg font-semibold rounded-full bg-[#013220] text-white border-2 border-white shadow-lg hover:bg-white hover:text-[#013220] hover:border-[#013220] hover:scale-[1.02] transition-all"
             >
-              Start Exploring
+              {t('hero.cta')}
             </Link>
 
             <div className="flex items-center gap-6 mt-12 sm:mt-16">
@@ -48,16 +50,15 @@ export default function Hero() {
                 </div>
               </div>
               <div className="drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)]">
-                <p className="text-white font-semibold text-sm">300+ Iconic</p>
-                <p className="text-white/70 text-sm">Spots Included</p>
+                <p className="text-white font-semibold text-sm">300+</p>
+                <p className="text-white/70 text-sm">{t('hero.spots')}</p>
               </div>
             </div>
           </div>
 
           <div className="w-full lg:w-[400px] flex flex-col gap-6">
             <p className="text-white/90 text-base leading-relaxed hidden lg:block drop-shadow-[0_1px_16px_rgba(0,0,0,0.55)]">
-              Discover nature&apos;s finest places, breathtaking landscapes, untouched beauty, and nature at its purest.
-              Journey to the Land of Origins and unearth endless scenic beauty.
+              {t('hero.subtitle')}
             </p>
           </div>
         </div>
