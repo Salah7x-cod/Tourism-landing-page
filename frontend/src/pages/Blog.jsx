@@ -1,8 +1,47 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import { PenLine, Upload, Link as LinkIcon, ChevronUp, Loader2, CheckCircle2 } from "lucide-react";
+import { translateText } from "../lib/translate";
+import { PenLine, Upload, Link as LinkIcon, ChevronUp, Loader2, CheckCircle2, Globe } from "lucide-react";
+
+/** Translate-to-English button for user-generated blog content */
+function TranslateButton({ text, language, t }) {
+  const [translated, setTranslated] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
+
+  if (language === 'en') return null; // Only show in non-English mode
+
+  const handleTranslate = async () => {
+    if (translated) { setShowOriginal((v) => !v); return; }
+    setLoading(true);
+    const result = await translateText(text, 'en', language);
+    setTranslated(result);
+    setLoading(false);
+  };
+
+  return (
+    <div className="mt-4">
+      <button
+        onClick={handleTranslate}
+        disabled={loading}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[#013220]/40 text-[#c8e6d5]/80 hover:bg-[#013220]/20 hover:text-[#c8e6d5] transition-all disabled:opacity-50"
+      >
+        {loading
+          ? <><Loader2 className="w-3 h-3 animate-spin" />{t('translate.translating')}</>
+          : translated
+          ? <><Globe className="w-3 h-3" />{showOriginal ? t('translate.toEnglish') : t('translate.showOriginal')}</>
+          : <><Globe className="w-3 h-3" />{t('translate.toEnglish')}</>}
+      </button>
+      {translated && !showOriginal && (
+        <div className="mt-3 p-3 rounded-xl bg-white/4 border border-white/10 text-xs text-white/70 leading-relaxed italic">
+          {translated}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const fallbackStories = [
   {
@@ -38,7 +77,7 @@ const fallbackStories = [
 ];
 
 export default function Blog() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { token, isAuthenticated } = useAuth();
   const [apiStories, setApiStories] = useState([]);
   const [destinations, setDestinations] = useState([]);
@@ -294,6 +333,7 @@ export default function Blog() {
                 <div className="md:col-span-7 space-y-6">
                   {paragraphs[0] && <p className="text-2xl leading-relaxed text-foreground font-light">{paragraphs[0]}</p>}
                   {paragraphs.slice(1).map((p, i) => <p key={i} className="leading-relaxed">{p}</p>)}
+                  <TranslateButton text={story.content} language={language} t={t} />
                 </div>
 
                 {inlineImg && (
