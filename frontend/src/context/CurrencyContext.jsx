@@ -1,4 +1,5 @@
-﻿import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { LANG_CURRENCY_MAP } from "./LanguageContext";
 
 const CurrencyContext = createContext(null);
 
@@ -26,7 +27,9 @@ const CURRENCY_SYMBOLS = {
 };
 
 export function CurrencyProvider({ children }) {
-  const [currency, setCurrency] = useState(() => localStorage.getItem("tourism_currency") || "USD");
+  const [currency, setCurrency] = useState(
+    () => localStorage.getItem("tourism_currency") || "USD"
+  );
   const [rates, setRates] = useState(() => {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
@@ -41,6 +44,18 @@ export function CurrencyProvider({ children }) {
   });
   const [loading, setLoading] = useState(false);
 
+  // Listen for language changes and auto-switch to that language's default currency
+  useEffect(() => {
+    const handler = (e) => {
+      const { lang } = e.detail;
+      const defaultCurrency = (LANG_CURRENCY_MAP[lang] || ["USD"])[0];
+      setCurrency(defaultCurrency);
+    };
+    window.addEventListener("languageChanged", handler);
+    return () => window.removeEventListener("languageChanged", handler);
+  }, []);
+
+  // Fetch live rates once
   useEffect(() => {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
@@ -51,17 +66,22 @@ export function CurrencyProvider({ children }) {
         localStorage.removeItem(CACHE_KEY);
       }
     }
-
     setLoading(true);
     fetch("https://api.exchangerate-api.com/v4/latest/USD")
-      .then((response) => response.json())
+      .then((r) => r.json())
       .then((data) => {
         if (!data.rates) return;
         const filtered = Object.fromEntries(
-          Object.keys(STATIC_RATES).map((key) => [key, data.rates[key] ?? STATIC_RATES[key]]),
+          Object.keys(STATIC_RATES).map((key) => [
+            key,
+            data.rates[key] ?? STATIC_RATES[key],
+          ])
         );
         setRates(filtered);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ rates: filtered, ts: Date.now() }));
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ rates: filtered, ts: Date.now() })
+        );
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -72,18 +92,37 @@ export function CurrencyProvider({ children }) {
   }, [currency]);
 
   const value = useMemo(() => {
+    const symbol = CURRENCY_SYMBOLS[currency] || "";
+    const rate = rates[currency] || 1;
+
     const convert = (usdAmount) => {
-      const numericAmount = typeof usdAmount === "string" ? parseFloat(usdAmount.replace(/[^0-9.]/g, "")) : usdAmount;
-      if (Number.isNaN(numericAmount)) return usdAmount;
-      const converted = numericAmount * (rates[currency] || 1);
+      const num =
+        typeof usdAmount === "string"
+          ? parseFloat(usdAmount.replace(/[^0-9.]/g, ""))
+          : usdAmount;
+      if (Number.isNaN(num)) return usdAmount;
       const decimals = currency === "JPY" ? 0 : 2;
-      return `${CURRENCY_SYMBOLS[currency] || ""}${converted.toFixed(decimals)}`;
+      return `${symbol}${(num * rate).toFixed(decimals)}`;
+    };
+
+    /** Returns { local: "$120.00", usd: "$120.00" } — always shows USD in parallel */
+    const dualDisplay = (usdAmount) => {
+      const num =
+        typeof usdAmount === "string"
+          ? parseFloat(usdAmount.replace(/[^0-9.]/g, ""))
+          : usdAmount;
+      if (Number.isNaN(num)) return { local: usdAmount, usd: usdAmount };
+      const decimals = currency === "JPY" ? 0 : 2;
+      const localStr = `${symbol}${(num * rate).toFixed(decimals)}`;
+      const usdStr = `$${num.toFixed(2)}`;
+      return { local: localStr, usd: usdStr };
     };
 
     return {
       currency,
       setCurrency,
       convert,
+      dualDisplay,
       rates,
       loading,
       currencies: Object.keys(STATIC_RATES),
@@ -91,7 +130,9 @@ export function CurrencyProvider({ children }) {
     };
   }, [currency, rates, loading]);
 
-  return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
+  return (
+    <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>
+  );
 }
 
 export function useCurrency() {
