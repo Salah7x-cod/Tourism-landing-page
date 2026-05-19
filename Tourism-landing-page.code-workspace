@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../SpringBootProjects/distributed-commerce"
+		}
+	],
+	"settings": {}
+}
