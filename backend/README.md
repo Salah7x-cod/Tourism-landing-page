@@ -12,7 +12,7 @@
 ## API Overview
 
 - `POST /api/auth/register` - register and receive JWT
-- `POST /api/auth/login` - login and receive JWT
+- `POST /api/auth/login` - login and receive JWT ,,
 - `GET /api/auth/me` - authenticated user profile
 - `GET /api/destinations` - list destinations
 - `GET /api/destinations/{id}` - destination detail
